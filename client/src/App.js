@@ -1,6 +1,12 @@
 import React, { Component } from "react";
-import logo from './logo.svg';
 import './App.css';
+
+import 'bootstrap/dist/css/bootstrap.min.css'
+
+
+import TopNav from './TopNav.js';
+import Description from './Description.js';
+import Search from './Search.js';
 
 class App extends Component {
   constructor(props) {
@@ -22,20 +28,9 @@ class App extends Component {
   render() {
     return ( 
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Twitter Impact on Stock Market
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-          </a>
-        </header>
-        <p className="App-intro">{this.state.apiResponse}</p>
+        <TopNav />
+        <Description />
+        <Search />
       </div>
     )
   }
