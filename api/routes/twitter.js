@@ -23,10 +23,7 @@ router.get('/user/:username', async function(req, res) {
         count: 10
     }, function(error, tweets) {
         if(error) throw error;
-        for (var i = 0; i < tweets.length; i++) {
-            ids.push(tweets[i].id_str);
-        }
-        res.send(ids);
+        res.send(tweets);
     });
 
 });

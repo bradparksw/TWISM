@@ -7,6 +7,9 @@ import Tab from 'react-bootstrap/Tab'
 import Form from 'react-bootstrap/Form'
 import './Search.css';
 import $ from 'jquery';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+import { fetchTweets } from './actions/tweetActions';
 
 class Search extends Component {
 
@@ -39,11 +42,9 @@ class Search extends Component {
 
     onSubmit(e) {
         e.preventDefault();
-        
-        fetch(`http://localhost:9000/twitter/${this.state.searchType}/${this.state.query}`)
-            .then(res => res.json())
-            .then(data => console.log(data))
-            .catch(err => err);
+        var apiLink = `http://localhost:9000/twitter/${this.state.searchType}/${this.state.query}`;
+
+        this.props.fetchTweets(apiLink);
 
     }
 
@@ -80,4 +81,8 @@ class Search extends Component {
     }
 }
 
-export default Search;
+Search.propTypes = {
+    fetchTweets: PropTypes.func.isRequired
+};
+
+export default connect(null, { fetchTweets })(Search);
