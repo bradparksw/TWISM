@@ -1,68 +1,83 @@
 import React, { Component, useState } from "react";
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
-import Col from 'react-bootstrap/Col'
 import Button from 'react-bootstrap/Button'
-import ButtonGroup from 'react-bootstrap/ButtonGroup'
-import ToggleButton from 'react-bootstrap/ToggleButton'
+import Tabs from 'react-bootstrap/Tabs'
+import Tab from 'react-bootstrap/Tab'
 import Form from 'react-bootstrap/Form'
 import './Search.css';
-import $ from 'jquery'; z
+import $ from 'jquery';
 
-function Search() {
-    const [checked, setChecked] = useState(false);
-    const [radioValue, setRadioValue] = useState('1');
+class Search extends Component {
 
-    const radios = [
-        { name: 'User', value: '1' },
-        { name: 'Tweet', value: '2' },
-        { name: 'Keyword', value: '3' },
-    ];
+    constructor(props) {
+        super(props);
+        this.state = {
+            searchType: 'user',
+            query: ''
+        };
 
-    const placeholder = {
-        1: 'Enter Twitter Username',
-        2: 'Enter Tweet ID',
-        3: 'Enter Keyword'
+        this.onChange = this.onChange.bind(this);
+        this.onSelect = this.onSelect.bind(this);
+        this.onSubmit = this.onSubmit.bind(this);
     }
 
-    return (
-        <Container id="searchContainer">
-            <Row>
-                <h4 id="searchBy">Search By: </h4>
-            </Row>
-            <Row>
-                <ButtonGroup toggle>
-                    {radios.map((radio, idx) => (
-                    <ToggleButton
-                        key={idx}
-                        type="radio"
-                        variant="secondary"
-                        name="radio"
-                        value={radio.value}
-                        checked={radioValue === radio.value}
-                        onChange={(e) => {
-                                setRadioValue(e.currentTarget.value)
-                                $('#searchBox').attr("placeholder", placeholder[e.currentTarget.value]);
-                            }
-                        }
-                    >
-                        {radio.name}
-                    </ToggleButton>
-                    ))}
-                </ButtonGroup>
-            </Row>
+    onChange(e) {
+        this.setState({ ['query']: e.target.value})
+    }
 
-            <Row>
-                <Form>
-                    <Form.Control id="searchBox" type="text" placeholder={placeholder[1]} />
-                    <Button variant="primary" type="submit">
-                        Submit
-                    </Button>
-                </Form>
-            </Row>
-            
-        </Container>
-    )
+    onSelect(e) {
+        this.setState({ ['searchType']: e });
+        if (e == "user") {
+            $('#searchBox').attr("placeholder", "Enter Twitter Username")
+        } else if (e == "tweet") {
+            $('#searchBox').attr("placeholder", "Enter Tweet ID") 
+        } else {
+            $('#searchBox').attr("placeholder", "Enter Search Keyword")  
+        } 
+    }
+
+    onSubmit(e) {
+        e.preventDefault();
+        
+        fetch(`http://localhost:9000/twitter/${this.state.searchType}/${this.state.query}`)
+            .then(res => res.json())
+            .then(data => console.log(data))
+            .catch(err => err);
+
+    }
+
+    render() {
+
+        return (
+            <Container id="searchContainer">
+                <Row>
+                    <h4 id="searchBy">Search By: </h4>
+                </Row>
+                <Row>
+                <Tabs defaultActiveKey="user" id="uncontrolled-tab-example" onSelect={this.onSelect} value={this.state.searchType}>
+                    <Tab eventKey="user" title="User">
+                    </Tab>
+                    <Tab eventKey="tweet" title="Tweet">
+                    </Tab>
+                    <Tab eventKey="keyboard" title="keyboard">
+                    </Tab>
+                </Tabs>
+                </Row>
+
+                <Row>
+                    <Form onSubmit={this.onSubmit}>
+                        <Form.Control id="searchBox" type="text" placeholder="Enter Twitter Username" onChange={this.onChange} value={this.state.query} />
+                        <Button variant="primary" type="submit">
+                            Search
+                        </Button>
+                    </Form>
+                </Row>
+
+
+            </Container>
+        )
+    }
 }
 
 export default Search;
