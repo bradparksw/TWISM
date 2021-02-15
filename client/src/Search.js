@@ -9,7 +9,7 @@ import './Search.css';
 import $ from 'jquery';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { fetchTweets } from './actions/tweetActions';
+import { fetchTimeline } from './actions/tweetActions';
 
 class Search extends Component {
 
@@ -44,8 +44,7 @@ class Search extends Component {
         e.preventDefault();
         var apiLink = `http://localhost:9000/twitter/${this.state.searchType}/${this.state.query}`;
 
-        this.props.fetchTweets(apiLink);
-
+        this.props.fetchTimeline(apiLink);
     }
 
     render() {
@@ -61,7 +60,7 @@ class Search extends Component {
                     </Tab>
                     <Tab eventKey="tweet" title="Tweet">
                     </Tab>
-                    <Tab eventKey="keyboard" title="keyboard">
+                    <Tab eventKey="keyword" title="Keyword">
                     </Tab>
                 </Tabs>
                 </Row>
@@ -82,7 +81,7 @@ class Search extends Component {
 }
 
 Search.propTypes = {
-    fetchTweets: PropTypes.func.isRequired
+    fetchTimeline: PropTypes.func.isRequired
 };
 
-export default connect(null, { fetchTweets })(Search);
+export default connect(null, { fetchTimeline })(Search);
