@@ -23,7 +23,12 @@ export const fetchTweet = (apiLink) => dispatch => {
 }
 
 export const analyzeTweet = (apiLink) => dispatch => {
-    fetch(apiLink)
+    fetch(apiLink, {
+        headers : { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    })
         .then(res => res.json())
         .then(entities => {
             dispatch({

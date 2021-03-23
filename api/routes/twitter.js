@@ -37,7 +37,8 @@ router.get('/tweet/:tweetId', async function(req, res) {
     const twitterClient = new Twitter({
         apiKey: process.env.API_KEY,
         apiSecret: process.env.API_KEY_SECRET,
-        bearer_token: process.env.BEARER_TOKEN
+        bearer_token: process.env.BEARER_TOKEN,
+        tweet_mode: 'extended'
     });
 
     twitterClient.get('statuses/show', {

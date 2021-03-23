@@ -22,25 +22,13 @@ class Tweets extends Component {
   }
 
   onClick(e) {
-    console.log(e);
+
     var tweetId = e.target.id.replace("Button", "");
-    var tweetStr = "";
-    
-    for (let i = 0; i < this.props.newTweets.length; i++) {
-      if (this.props.newTweets[i].id_str == tweetId) {
-        tweetStr = this.props.newTweets[i].full_text;
-      }
-    }
 
-    // do in_reply_to_status_id_str to get retweet string as well by calling twitter fetchtweet api
-
-    console.log(tweetStr);
-
-    var apiLink = `http://localhost:9000/analyzeText/${tweetStr}`;
+    var apiLink = `http://localhost:9000/analyzeText/${tweetId}`;
+    console.log(apiLink);
     this.props.analyzeTweet(apiLink);
-    console.log(this.props.entities);
-
-    // this.props.fetchTweet(apiLink);
+    
   }
 
   
@@ -78,7 +66,7 @@ Tweets.propTypes = {
 const mapStateToProps = state => ({
   fullTweet: state.tweets.fullTweet,
   newTweets: state.tweets.searchRes,
-  entities: state.tweets.companies
+  entities: state.tweets.entities
 })
 
 Tweets.defaultProps = {
