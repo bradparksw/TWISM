@@ -39,9 +39,18 @@ class Tweets extends Component {
             <TwitterTweetEmbed tweetId={tweet.id_str} placeholder={'loading'}/>
         </Col>
         <Col>
-        <div style={{marginTop: "10px", marginBottom: "10px"}}>
-          <Button id= {tweet.id_str + "Button"} style={{top: "50%"}} onClick={this.onClick}>Analyze</Button>
-        </div>
+            <div style={{marginTop: "10px", marginBottom: "10px"}}>
+              <Button id= {tweet.id_str + "Button"} style={{top: "50%"}} onClick={this.onClick}>Analyze</Button>
+            </div>
+            {this.props.entities.id == tweet.id ? (
+               this.props.entities.symbols.map(company => (
+                  <Row key={tweet.id + "_" + company.symbol}>
+                    <Button id={tweet.id + "_" + company.symbol + "_" + "Button"}>
+                      {company.symbol}
+                    </Button>
+                  </Row>
+               ))
+            ) : null}
         </Col>
         <Col>
           
@@ -60,7 +69,7 @@ class Tweets extends Component {
 Tweets.propTypes = {
   fullTweet: PropTypes.object,
   newTweets: PropTypes.array,
-  entities: PropTypes.array
+  entities: PropTypes.object
 }
 
 const mapStateToProps = state => ({
@@ -72,7 +81,7 @@ const mapStateToProps = state => ({
 Tweets.defaultProps = {
   fullTweet: null,
   newTweets: [],
-  entities: []
+  entities: null
 }
 
   

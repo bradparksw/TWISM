@@ -2,12 +2,27 @@ const { request } = require('express');
 var express = require('express');
 var router = express.Router();
 const { TextAnalyticsClient, AzureKeyCredential } = require("@azure/ai-text-analytics");
-var Twitter = require('twitter');
-
+const Twitter = require('twitter');
+const apiReq = require('request');
 
 var utf8 = require('utf8');
 
 require('dotenv').config();
+
+async function getSymbol(keyword) {
+    return new Promise(function (resolve, reject) {
+        apiReq(`https://finnhub.io/api/v1/search?q=${keyword}&token=${process.env.FINNHUB_KEY}`, { json: true }, (err, res, body) => {
+            if (err) { 
+                reject(err); 
+            }
+            if (body.count > 0) {
+                resolve(body.result[0]);
+            } else { 
+                resolve(null);
+            }
+        });
+    });
+}
 
 router.get('/:tweetId', async function(req, res) {
 
@@ -34,12 +49,17 @@ router.get('/:tweetId', async function(req, res) {
             id: tweetId,
             tweet_mode: 'extended'
         });
+        
         var tweetStr = tweet.full_text
-        analyzeStr.push(tweetStr);
-
+        if (analyzeStr.length >= 5) {
+            analyzeStr[4] += tweetStr;
+        } else {
+            analyzeStr.push(tweetStr);
+        }
+        
         var words = tweetStr.split(" ");
         for (let i = 0; i < words.length; i++) {
-            if (words[i][0] == "$" && !/\d/.test(words[i])) {
+            if ((words[i][0] == "@" || words[i][0] == "$") && !/\d/.test(words[i])) {
                 if (!companies.includes(words[i].substring(1)) && !companies.includes(words[i])) {
                     companies.push(words[i].substring(1));
                 }
@@ -47,32 +67,38 @@ router.get('/:tweetId', async function(req, res) {
         }
 
         tweetId = tweet.in_reply_to_status_id_str
-        console.log(tweetId);
     } while (tweetId != null)
-
-    
-
-    console.log(analyzeStr);
-    console.log(companies);
-
-
 
     const entityResults = await textAnalyticsClient.recognizeEntities(analyzeStr);
 
 
     entityResults.forEach(document => {
         document.entities.forEach(entity => {
-            console.log(entity.text, entity.category);
             if (entity.category == "Organization" || entity.category == "Product") {
                 companies.push(entity.text);
             }
         });
     });
     
+    const uniqueCompanies = new Set(companies);
+    const companyArr = [...uniqueCompanies];
+    console.log(companyArr);
 
-    console.log(companies);
+    let symbols = [];
+    for (i = 0; i < companyArr.length; i++) {
+        let symbol = await getSymbol(companyArr[i]);
+        if (symbol != null) {
+            symbols.push(symbol);
+        }
+    }
 
-    res.send(companies);
+    result = {
+        id : req.params.tweetId,
+        symbols : symbols
+    }
+
+    console.log(symbols);
+    res.send(result);
 
 });
 
