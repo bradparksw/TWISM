@@ -1,3 +1,4 @@
 export const FETCH_TIMELINE = 'FETCH_TWEETS';
 export const FETCH_TWEET = 'FETCH_TWEET';
 export const ANALYZE_TWEET = 'ANALYZE_TWEET';
+export const FETCH_STOCK_CHART = 'FETCH_STOCK_CHART';

@@ -1,11 +1,8 @@
-const { request } = require('express');
 var express = require('express');
 var router = express.Router();
 const { TextAnalyticsClient, AzureKeyCredential } = require("@azure/ai-text-analytics");
 const Twitter = require('twitter');
 const apiReq = require('request');
-
-var utf8 = require('utf8');
 
 require('dotenv').config();
 
@@ -16,8 +13,19 @@ async function getSymbol(keyword) {
                 reject(err); 
             }
             if (body.count > 0) {
-                resolve(body.result[0]);
-            } else { 
+                if (body.result[0].symbol.includes(".")) {
+                    var symbol = body.result[0].symbol.split(".")[0];
+                    for (let i = 0; i < body.result.length; i++) {
+                        if (body.result[i].symbol == symbol) {
+                            resolve(body.result[i]);
+                            break;
+                        }
+                    }
+                    resolve(body.result[0]);
+                } else {
+                    resolve(body.result[0]);
+                }
+            } else {
                 resolve(null);
             }
         });
@@ -97,12 +105,11 @@ router.get('/:tweetId', async function(req, res) {
         symbols : symbols
     }
 
+
+
     console.log(symbols);
     res.send(result);
 
 });
 
 module.exports = router;
-
-
-

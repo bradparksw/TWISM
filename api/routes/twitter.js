@@ -26,8 +26,9 @@ router.get('/user/:username', async function(req, res) {
         include_rts: true
     }, function(error, tweets) {
         if(error) throw error;
-        console.log(tweets);
-        res.send(tweets);
+        var searchRes = Object.assign({}, ...tweets.map((tweet) => ({[tweet.id_str]: tweet.created_at})));
+        console.log(searchRes);
+        res.send(searchRes);
     });
 
 });

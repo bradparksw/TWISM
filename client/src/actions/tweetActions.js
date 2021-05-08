@@ -1,4 +1,4 @@
-import { FETCH_TIMELINE, FETCH_TWEET, ANALYZE_TWEET } from './types';
+import { FETCH_TIMELINE, FETCH_TWEET, ANALYZE_TWEET, FETCH_STOCK_CHART } from './types';
 
 export const fetchTimeline = (apiLink) => dispatch => {
     fetch(apiLink)
@@ -36,4 +36,20 @@ export const analyzeTweet = (apiLink) => dispatch => {
                 entities: entities
             });
         });
+}
+
+export const fetchStockChart = (apiLink) => dispatch => {
+    fetch(apiLink, {
+        headers : { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    })
+        .then(res => res.json())
+        .then(chartObj => {
+            dispatch({
+                type: FETCH_STOCK_CHART,
+                chart: chartObj
+            })
+        })
 }

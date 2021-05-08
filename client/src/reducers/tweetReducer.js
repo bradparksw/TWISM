@@ -1,8 +1,8 @@
-import { FETCH_TIMELINE, FETCH_TWEET, ANALYZE_TWEET } from '../actions/types';
+import { FETCH_TIMELINE, FETCH_TWEET, ANALYZE_TWEET, FETCH_STOCK_CHART } from '../actions/types';
 
 const initialState = {
     fullTweet: null,
-    searchRes: [],
+    searchRes: null,
     entities: []
 };
 
@@ -22,6 +22,11 @@ export default function(state = initialState, action) {
             return {
                 ...state,
                 entities: action.entities
+            }
+        case FETCH_STOCK_CHART:
+            return {
+                ...state,
+                chart: action.chart
             }
         default:
             return state;    

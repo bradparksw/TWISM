@@ -7,7 +7,8 @@ var cors = require("cors");
 
 var indexRouter = require('./routes/index');
 var twitterRouter = require('./routes/twitter');
-var analyzeTextRouter = require('./routes/analyzeText')
+var analyzeTextRouter = require('./routes/analyzeText');
+var stockChart = require('./routes/stockChart');
 
 var app = express();
 
@@ -25,6 +26,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/twitter', twitterRouter);
 app.use('/analyzeText', analyzeTextRouter);
+app.use('/stockChart', stockChart);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
