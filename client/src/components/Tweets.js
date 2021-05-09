@@ -7,10 +7,11 @@ import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Button from 'react-bootstrap/Button'
 import './Search.css';
-import { fetchTweet, analyzeTweet, fetchStockChart } from './actions/tweetActions';
+import { analyzeTweet, fetchStockChart } from '../actions/tweetActions';
 import Form from 'react-bootstrap/Form'
+import ReactPlaceholder from 'react-placeholder';
 
-import CanvasJSReact from './canvasjs.react';
+import CanvasJSReact from '../scripts/canvasjs.react';
 var CanvasJS = CanvasJSReact.CanvasJS;
 var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
@@ -20,8 +21,7 @@ class Tweets extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      dataPoints1: [],
-      isLoaded: null,
+      chart: {},
       symbolSearch: {}
     }
 
@@ -50,16 +50,16 @@ class Tweets extends Component {
       let start = 0, end = this.props.chart.stockCandles.c.length - 1;
       while (start <= end) {
         let mid = Math.floor((start + end) / 2);
-        console.log(start, mid, end);
-        console.log(this.props.chart.stockCandles.t[mid], this.props.chart.tweetedUNIX);
         if (this.props.chart.stockCandles.t[mid] <= this.props.chart.tweetedUNIX && 
             (mid == this.props.chart.stockCandles.c.length - 1 || this.props.chart.stockCandles.t[mid + 1] >= this.props.chart.tweetedUNIX)) {
               dps1[mid].indexLabel = "Time of Tweet";
               dps1[mid].indexLabelOrientation = "vertical";
               dps1[mid].indexLabelFontColor = "orangered";
+              dps1[mid].markerType = "circle";
               dps1[mid].markerColor = "orangered";
+              dps1[mid].markerSize = 8;
               if (mid == this.props.chart.stockCandles.c.length - 1) {
-                alert("Let's wait for the stock market to open tomorrow and see what influence this tweet will have!");
+                alert("The stock market hasn't been open since the tweet. Let's wait for the stock market to open tomorrow and see what influence this tweet will have!");
               }
               break;
         } else if (this.props.chart.stockCandles.t[mid] <= this.props.chart.tweetedUNIX) {
@@ -69,12 +69,29 @@ class Tweets extends Component {
         }
       }
 
-      this.setState({
-        isLoaded: this.props.chart.tweetId,
-        dataPoints1: dps1
-      });
-    } else if (this.props.entities == prevProps.entities) {
-      console.log("hi");
+      var dataSeries = [{ 
+        type: "line",
+        xValueFormatString: "D'th' MMMM YYYY hh:mm tt",
+        yValueFormatString: "$###0.00",
+        dataPoints: dps1
+      }];
+      const options = {
+        zoomEnabled: true,
+        animationEnabled: true,
+        title: {
+          text: "Tweet's Influence on " + this.props.chart.symbol
+        },
+        axisY: {
+          prefix: "$"
+        },
+        data: dataSeries  
+      }
+
+      let chart = {...this.state.chart};
+      let currentChart = chart[this.props.chart.tweetId];
+      currentChart = options;
+      chart[this.props.chart.tweetId] = currentChart;
+      this.setState({chart});
     }
   }
 
@@ -137,6 +154,7 @@ class Tweets extends Component {
     e.preventDefault();
     var tweetId = e.target.id.split("_")[0];
     var symbol = this.state.symbolSearch[tweetId];
+    if (!symbol.length) return;
     var times = this.getChartTimes(tweetId);
     var apiLink = `http://localhost:9000/stockChart/${tweetId}/${symbol}/${times.startTime}/${times.tweetedUNIX}/${times.endTime}`;
     console.log(apiLink);
@@ -152,33 +170,15 @@ class Tweets extends Component {
   }
 
   
-  render() {
-    var dataSeries = [{ 
-      type: "line",
-      xValueFormatString: "D'th' MMMM YYYY hh:mm tt",
-      yValueFormatString: "$###0.00",
-      dataPoints: this.state.dataPoints1 
-    }];
-		const options = {
-			zoomEnabled: true,
-			animationEnabled: true,
-			title: {
-				text: "Try Zooming - Panning"
-			},
-      axisY: {
-				prefix: "$",
-				title: "Price"
-			},
-			data: dataSeries  
-		}
 
+  render() {
     const tweets = (!this.props.newTweets)? null : 
       Object.keys(this.props.newTweets).map(tweetId => (
         <Row key={tweetId} style={{width: "100%"}}>
           <Col id={tweetId} style={{paddingLeft: "0px"}} lg="4">
-              <TwitterTweetEmbed tweetId={tweetId} placeholder={'loading'}/>
+              <TwitterTweetEmbed tweetId={tweetId} placeholder={<ReactPlaceholder type='media' rows={7} />} onLoad={console.log("hi")}/>
           </Col>
-          <Col lg="auto">
+          <Col xs="auto">
               {(this.props.entities && tweetId in this.props.entities) ? (
                 this.props.entities[tweetId].length ? ( 
                   this.props.entities[tweetId].map(company => (
@@ -198,19 +198,19 @@ class Tweets extends Component {
               )}
             <Form id={tweetId + "_SymbolSearchForm"} onSubmit={this.manualSearch}>
               <Form.Row className="align-items-center">
-                <Col xs="auto">
+                <Col xs>
                   <Form.Label htmlFor="inlineFormInput" srOnly>
                     Symbol
                   </Form.Label>
                   <Form.Control
                     className="mb-2"
                     id={tweetId + "_SymbolSearch"}
-                    placeholder="Enter stock symbol to cross-analyze"
+                    placeholder="Enter Symbol"
                     onChange={this.updateSymbolSearch}
                     value={this.state.symbolSearch[tweetId] ?? ""}
                   />
                 </Col>
-                <Col xs="auto">
+                <Col xs>
                   <Button type="submit" className="mb-2">
                     Submit
                   </Button>
@@ -218,9 +218,9 @@ class Tweets extends Component {
               </Form.Row>
             </Form>
           </Col>
-          <Col>
-            {(this.props.chart != null && this.props.chart.tweetId == tweetId) ? (
-              <CanvasJSChart options = {options} />
+          <Col lg="auto">
+            {(tweetId in this.state.chart) ? (
+              <CanvasJSChart options = {this.state.chart[tweetId]} />
             ) : null}
           </Col>
         </Row>
@@ -256,4 +256,4 @@ Tweets.defaultProps = {
 }
 
   
-export default connect(mapStateToProps, {fetchTweet, analyzeTweet, fetchStockChart})(Tweets);
+export default connect(mapStateToProps, {analyzeTweet, fetchStockChart})(Tweets);

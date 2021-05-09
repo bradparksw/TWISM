@@ -28,10 +28,11 @@ router.get('/user/:username', async function(req, res) {
         if(error || !tweets.length) {
             console.log("rip");
             res.send(null);
-        };
-        var searchRes = Object.assign({}, ...tweets.map((tweet) => ({[tweet.id_str]: tweet.created_at})));
-        console.log(searchRes);
-        res.send(searchRes);
+        } else {
+            var searchRes = Object.assign({}, ...tweets.map((tweet) => ({[tweet.id_str]: tweet.created_at})));
+            console.log(tweets);
+            res.send(searchRes);
+        }
     });
 
 });

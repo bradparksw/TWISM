@@ -18,12 +18,6 @@ class TopNav extends Component {
                 Twitter's Stock Market Influence
                 </Navbar.Brand>
                 <Navbar.Toggle />
-                <Navbar.Collapse className="justify-content-end" activeKey="/#home">
-                    <Nav>
-                        <Nav.Link href="#aboutUs">About</Nav.Link>
-                        <Nav.Link href="#aboutUs">Contact</Nav.Link>
-                    </Nav>
-                </Navbar.Collapse>
             </Navbar>
         )
     }

@@ -9,7 +9,7 @@ import './Search.css';
 import $ from 'jquery';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { fetchTimeline, fetchTweet } from './actions/tweetActions';
+import { fetchTimeline, fetchTweet } from '../actions/tweetActions';
 
 class Search extends Component {
 
@@ -42,6 +42,7 @@ class Search extends Component {
 
     onSubmit(e) {
         e.preventDefault();
+        if (!this.state.query.length) return;
         var apiLink = `http://localhost:9000/twitter/${this.state.searchType}/${this.state.query}`;
         
         if (this.state.searchType == "user") {

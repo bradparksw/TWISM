@@ -4,10 +4,10 @@ import { Provider } from 'react-redux';
 
 import 'bootstrap/dist/css/bootstrap.min.css'
 
-import TopNav from './TopNav.js';
-import Description from './Description.js';
-import Search from './Search.js';
-import Tweets from './Tweets.js';
+import TopNav from './components/TopNav.js';
+import Description from './components/Description.js';
+import Search from './components/Search.js';
+import Tweets from './components/Tweets.js';
 
 import store from './store';
 
