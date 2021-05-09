@@ -23,6 +23,7 @@ async function getCandles(symbol, startTime, endTime) {
 router.get('/:tweetId/:symbol/:startTime/:tweetedUNIX/:endTime', async function(req, res) {
     let chart = {
         tweetId: req.params.tweetId,
+        tweetedUNIX: req.params.tweetedUNIX,
         stockCandles: await getCandles(req.params.symbol, req.params.startTime, req.params.endTime),
     }
     res.send(chart);

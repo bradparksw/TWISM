@@ -25,7 +25,10 @@ router.get('/user/:username', async function(req, res) {
         tweet_mode: 'extended',
         include_rts: true
     }, function(error, tweets) {
-        if(error) throw error;
+        if(error || !tweets.length) {
+            console.log("rip");
+            res.send(null);
+        };
         var searchRes = Object.assign({}, ...tweets.map((tweet) => ({[tweet.id_str]: tweet.created_at})));
         console.log(searchRes);
         res.send(searchRes);
@@ -46,8 +49,9 @@ router.get('/tweet/:tweetId', async function(req, res) {
         id: req.params.tweetId
     }, function(error, tweet) {
         if(error) throw error;
-        console.log("sucessfull");
-        res.send(tweet);
+        var searchRes = {};
+        searchRes[req.params.tweetId] = tweet.created_at;
+        res.send(searchRes);
     });
 
 });

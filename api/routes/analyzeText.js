@@ -10,6 +10,7 @@ async function getSymbol(keyword) {
     return new Promise(function (resolve, reject) {
         apiReq(`https://finnhub.io/api/v1/search?q=${keyword}&token=${process.env.FINNHUB_KEY}`, { json: true }, (err, res, body) => {
             if (err) { 
+                console.log(err);
                 reject(err); 
             }
             if (body.count > 0) {
@@ -78,10 +79,9 @@ router.get('/:tweetId', async function(req, res) {
     } while (tweetId != null)
 
     const entityResults = await textAnalyticsClient.recognizeEntities(analyzeStr);
-
-
     entityResults.forEach(document => {
         document.entities.forEach(entity => {
+            console.log(entity.category, entity.text);
             if (entity.category == "Organization" || entity.category == "Product") {
                 companies.push(entity.text);
             }

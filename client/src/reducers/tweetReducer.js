@@ -3,12 +3,17 @@ import { FETCH_TIMELINE, FETCH_TWEET, ANALYZE_TWEET, FETCH_STOCK_CHART } from '.
 const initialState = {
     fullTweet: null,
     searchRes: null,
-    entities: []
+    entities: null
 };
 
 export default function(state = initialState, action) {
     switch(action.type) {
         case FETCH_TIMELINE:
+            if (action.payload == null) {
+                return {
+                    ...state
+                };
+            }
             return {
                 ...state,
                 searchRes: action.payload
@@ -16,12 +21,16 @@ export default function(state = initialState, action) {
         case FETCH_TWEET:
             return {
                 ...state,
-                fullTweet: action.payload
+                searchRes: action.payload
             }
         case ANALYZE_TWEET:
+            if (state.entities == null) {
+                state.entities = {}
+            }
+            state.entities[action.entities.id] = action.entities.symbols;
+            console.log(state.entities);
             return {
-                ...state,
-                entities: action.entities
+                ...state
             }
         case FETCH_STOCK_CHART:
             return {
