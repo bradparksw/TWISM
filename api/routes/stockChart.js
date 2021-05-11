@@ -10,7 +10,6 @@ async function getCandles(symbol, startTime, endTime) {
             if (err) { 
                 reject(err); 
             }
-            console.log(body);
             if (body.s == 'ok') {
                 resolve(body);
             } else { 

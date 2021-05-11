@@ -1,4 +1,4 @@
-import { FETCH_TIMELINE, FETCH_TWEET, ANALYZE_TWEET, FETCH_STOCK_CHART } from '../actions/types';
+import { FETCH_TIMELINE, FETCH_TWEET, ANALYZE_TWEET, FETCH_STOCK_CHART, FETCH_KEYWORD } from '../actions/types';
 
 const initialState = {
     fullTweet: null,
@@ -19,6 +19,11 @@ export default function(state = initialState, action) {
                 searchRes: action.payload
             };
         case FETCH_TWEET:
+            return {
+                ...state,
+                searchRes: action.payload
+            }
+        case FETCH_KEYWORD:
             return {
                 ...state,
                 searchRes: action.payload

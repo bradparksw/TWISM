@@ -1,6 +1,7 @@
-import React, { Component, useState } from "react";
+import React, { Component } from "react";
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col'
 import Button from 'react-bootstrap/Button'
 import Tabs from 'react-bootstrap/Tabs'
 import Tab from 'react-bootstrap/Tab'
@@ -9,7 +10,7 @@ import './Search.css';
 import $ from 'jquery';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { fetchTimeline, fetchTweet } from '../actions/tweetActions';
+import { fetchTimeline, fetchTweet, fetchKeyword } from '../actions/tweetActions';
 
 class Search extends Component {
 
@@ -17,7 +18,11 @@ class Search extends Component {
         super(props);
         this.state = {
             searchType: 'user',
-            query: ''
+            query: {
+                'user': "",
+                'tweet': "",
+                'keyword': ""
+            }
         };
 
         this.onChange = this.onChange.bind(this);
@@ -26,29 +31,39 @@ class Search extends Component {
     }
 
     onChange(e) {
-        this.setState({ ['query']: e.target.value})
+        var query = this.state.query;
+        if (this.state.searchType === 'user') {
+            query.user = e.target.value;
+        } else if (this.state.searchType === 'tweet') {
+            query.tweet = e.target.value;
+        } else if (this.state.searchType === 'keyword'){
+            query.keyword = e.target.value;
+        }
+        this.setState({query})
     }
 
     onSelect(e) {
-        this.setState({ ['searchType']: e });
-        if (e == "user") {
+        this.setState({ searchType: e });
+        if (e === "user") {
             $('#searchBox').attr("placeholder", "Enter Twitter Username")
-        } else if (e == "tweet") {
+        } else if (e === "tweet") {
             $('#searchBox').attr("placeholder", "Enter Tweet ID") 
         } else {
             $('#searchBox').attr("placeholder", "Enter Search Keyword")  
-        } 
+        }
     }
 
     onSubmit(e) {
         e.preventDefault();
-        if (!this.state.query.length) return;
-        var apiLink = `http://localhost:9000/twitter/${this.state.searchType}/${this.state.query}`;
-        
-        if (this.state.searchType == "user") {
+        if (!this.state.query[this.state.searchType].length) return;
+        var apiLink = `http://localhost:9000/twitter/${this.state.searchType}/${this.state.query[this.state.searchType]}`;
+        console.log(apiLink);
+        if (this.state.searchType === "user") {
             this.props.fetchTimeline(apiLink);
-        } else if (this.state.searchType == "tweet") {
+        } else if (this.state.searchType === "tweet") {
             this.props.fetchTweet(apiLink);
+        } else if (this.state.searchType === "keyword") {
+            this.props.fetchKeyword(apiLink);
         }
     }
 
@@ -69,13 +84,18 @@ class Search extends Component {
                     </Tab>
                 </Tabs>
                 </Row>
-
                 <Row>
                     <Form onSubmit={this.onSubmit}>
-                        <Form.Control id="searchBox" type="text" placeholder="Enter Twitter Username" onChange={this.onChange} value={this.state.query} />
-                        <Button variant="primary" type="submit">
-                            Search
-                        </Button>
+                        <Form.Row className="align-items-center">
+                        <Col lg="auto">
+                            <Form.Control id="searchBox" type="text" placeholder="Enter Twitter Username" onChange={this.onChange} value={this.state.query[this.state.searchType]} />
+                        </Col>
+                        <Col xs="auto">
+                            <Button variant="primary" type="submit">
+                                Search
+                            </Button>
+                        </Col>
+                        </Form.Row>
                     </Form>
                 </Row>
 
@@ -89,4 +109,4 @@ Search.propTypes = {
     fetchTimeline: PropTypes.func.isRequired
 };
 
-export default connect(null, { fetchTimeline, fetchTweet })(Search);
+export default connect(null, { fetchTimeline, fetchTweet, fetchKeyword })(Search);

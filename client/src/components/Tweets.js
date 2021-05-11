@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import { TwitterTweetEmbed } from 'react-twitter-embed';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -6,7 +6,7 @@ import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Button from 'react-bootstrap/Button'
-import './Search.css';
+import './tweets.css';
 import { analyzeTweet, fetchStockChart } from '../actions/tweetActions';
 import Form from 'react-bootstrap/Form'
 import ReactPlaceholder from 'react-placeholder';
@@ -32,7 +32,7 @@ class Tweets extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.chart != prevProps.chart) {
+    if (this.props.chart !== prevProps.chart) {
       if(this.props.chart.stockCandles == null) {
         alert("Only US Stocks are supported at the moment :(")
         return;
@@ -50,15 +50,15 @@ class Tweets extends Component {
       let start = 0, end = this.props.chart.stockCandles.c.length - 1;
       while (start <= end) {
         let mid = Math.floor((start + end) / 2);
-        if (this.props.chart.stockCandles.t[mid] <= this.props.chart.tweetedUNIX && 
-            (mid == this.props.chart.stockCandles.c.length - 1 || this.props.chart.stockCandles.t[mid + 1] >= this.props.chart.tweetedUNIX)) {
+        if (mid === 0 || (this.props.chart.stockCandles.t[mid] <= this.props.chart.tweetedUNIX && 
+            (mid === 0 || mid === this.props.chart.stockCandles.c.length - 1 || this.props.chart.stockCandles.t[mid + 1] >= this.props.chart.tweetedUNIX))) {
               dps1[mid].indexLabel = "Time of Tweet";
               dps1[mid].indexLabelOrientation = "vertical";
               dps1[mid].indexLabelFontColor = "orangered";
               dps1[mid].markerType = "circle";
               dps1[mid].markerColor = "orangered";
               dps1[mid].markerSize = 8;
-              if (mid == this.props.chart.stockCandles.c.length - 1) {
+              if (mid === this.props.chart.stockCandles.c.length - 1) {
                 alert("The stock market hasn't been open since the tweet. Let's wait for the stock market to open tomorrow and see what influence this tweet will have!");
               }
               break;
@@ -105,12 +105,10 @@ class Tweets extends Component {
   }
 
   getChartTimes(tweetId) {
-    console.log(this.props.newTweets);
     var tweeted = new Date(this.props.newTweets[tweetId]);
     var tweetedUNIX = 0;
     var startTime = 0;
     var endTime = 0;
-    console.log(tweeted);
     if (tweeted.getHours() < 4) {
       startTime = new Date(tweeted.getFullYear(), tweeted.getMonth(), tweeted.getDate() - 1, 18).getTime() / 1000;
       tweetedUNIX = new Date(tweeted.getFullYear(), tweeted.getMonth(), tweeted.getDate() - 1, 20).getTime() / 1000;
@@ -146,7 +144,6 @@ class Tweets extends Component {
     
     var times = this.getChartTimes(tweetId);
     var apiLink = `http://localhost:9000/stockChart/${tweetId}/${symbol}/${times.startTime}/${times.tweetedUNIX}/${times.endTime}`;
-    console.log(apiLink);
     this.props.fetchStockChart(apiLink);
   }
 
@@ -157,7 +154,6 @@ class Tweets extends Component {
     if (!symbol.length) return;
     var times = this.getChartTimes(tweetId);
     var apiLink = `http://localhost:9000/stockChart/${tweetId}/${symbol}/${times.startTime}/${times.tweetedUNIX}/${times.endTime}`;
-    console.log(apiLink);
     this.props.fetchStockChart(apiLink);
   }
 
@@ -169,31 +165,29 @@ class Tweets extends Component {
     this.setState({symbolSearch});
   }
 
-  
-
   render() {
     const tweets = (!this.props.newTweets)? null : 
       Object.keys(this.props.newTweets).map(tweetId => (
-        <Row key={tweetId} style={{width: "100%"}}>
-          <Col id={tweetId} style={{paddingLeft: "0px"}} lg="4">
-              <TwitterTweetEmbed tweetId={tweetId} placeholder={<ReactPlaceholder type='media' rows={7} />} onLoad={console.log("hi")}/>
+        <Row key={tweetId} className="tweetRow">
+          <Col id={tweetId} className="embed" lg="4">
+              <TwitterTweetEmbed tweetId={tweetId} placeholder={<ReactPlaceholder type='media' rows={7} />}/>
           </Col>
           <Col xs="auto">
               {(this.props.entities && tweetId in this.props.entities) ? (
                 this.props.entities[tweetId].length ? ( 
                   this.props.entities[tweetId].map(company => (
-                    <Row key={tweetId + "_" + company.symbol}>
-                      <Button id={tweetId + "_" + company.symbol + "_" + "Button"} onClick={this.getCandles}>
-                        {company.symbol}
+                    <div key={tweetId + "_" + company} className="symbolButtonDiv">
+                      <Button id={tweetId + "_" + company + "_Button"} className="symbolButton autoGenratedButton" onClick={this.getCandles}>
+                        {company}
                       </Button>
-                    </Row>
+                    </div>
                   ))
                 ) : (
-                  "No related stocks found. Please manually fill in the ticker symbol below."
+                  "No related US stocks found. Please manually fill in the ticker symbol below."
                 )
               ) : (
-                <div style={{marginTop: "10px", marginBottom: "10px"}}>
-                  <Button id= {tweetId + "Button"} style={{top: "50%"}} onClick={this.onClick}>Search for related stocks</Button>
+                <div className="symbolButtonDiv">
+                  <Button id= {tweetId + "Button"} className="symbolButton automaticSearch" onClick={this.onClick}>Search for related stocks</Button>
                 </div>
               )}
             <Form id={tweetId + "_SymbolSearchForm"} onSubmit={this.manualSearch}>
@@ -203,16 +197,16 @@ class Tweets extends Component {
                     Symbol
                   </Form.Label>
                   <Form.Control
-                    className="mb-2"
+                    className="mb-2 symbolSearch"
                     id={tweetId + "_SymbolSearch"}
                     placeholder="Enter Symbol"
                     onChange={this.updateSymbolSearch}
-                    value={this.state.symbolSearch[tweetId] ?? ""}
+                    value={tweetId in this.state.symbolSearch ? this.state.symbolSearch[tweetId] : ""}
                   />
                 </Col>
                 <Col xs>
-                  <Button type="submit" className="mb-2">
-                    Submit
+                  <Button type="submit" className="mb-2 symbolButton">
+                    Analyze
                   </Button>
                 </Col>
               </Form.Row>

@@ -11,7 +11,7 @@ services:
         links:
             - api
         networks:
-            webappnetwork
+            - webappnetwork
     api:
         image: webapp-api
         restart: always
@@ -20,10 +20,8 @@ services:
         volumes:
             - ./api:/api
             - /api/node_modules
-        depends_on:
-            - mongodb
         networks:
-            webappnetwork
+            - webappnetwork
 networks:
     webappnetwork:
         driver: bridge

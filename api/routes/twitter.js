@@ -57,6 +57,27 @@ router.get('/tweet/:tweetId', async function(req, res) {
 
 });
 
+router.get('/keyword/:query', async function(req, res) {
+
+    const twitterClient = new Twitter({
+        apiKey: process.env.API_KEY,
+        apiSecret: process.env.API_KEY_SECRET,
+        bearer_token: process.env.BEARER_TOKEN,
+        tweet_mode: 'extended'
+    });
+
+    twitterClient.get('search/tweets', {
+        q: req.params.query
+    }, function(error, tweets) {
+        console.log(tweets);
+        if(error) throw error;
+        var searchRes = Object.assign({}, ...tweets.statuses.map((tweet) => ({[tweet.id_str]: tweet.created_at})));
+        console.log(tweets);
+        res.send(searchRes);
+    });
+
+});
+
 module.exports = router;
 
 

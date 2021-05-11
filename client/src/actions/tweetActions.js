@@ -1,4 +1,4 @@
-import { FETCH_TIMELINE, FETCH_TWEET, ANALYZE_TWEET, FETCH_STOCK_CHART } from './types';
+import { FETCH_TIMELINE, FETCH_TWEET, ANALYZE_TWEET, FETCH_STOCK_CHART, FETCH_KEYWORD } from './types';
 
 export const fetchTimeline = (apiLink) => dispatch => {
     fetch(apiLink)
@@ -18,6 +18,17 @@ export const fetchTweet = (apiLink) => dispatch => {
             dispatch({
                 type: FETCH_TWEET,
                 payload: tweet
+            });
+        });
+}
+
+export const fetchKeyword = (apiLink) => dispatch => {
+    fetch(apiLink)
+        .then(res => res.json())
+        .then(tweets => {
+            dispatch({
+                type: FETCH_KEYWORD,
+                payload: tweets
             });
         });
 }

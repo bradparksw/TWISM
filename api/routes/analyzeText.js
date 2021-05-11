@@ -8,27 +8,22 @@ require('dotenv').config();
 
 async function getSymbol(keyword) {
     return new Promise(function (resolve, reject) {
-        apiReq(`https://finnhub.io/api/v1/search?q=${keyword}&token=${process.env.FINNHUB_KEY}`, { json: true }, (err, res, body) => {
+        apiReq(`https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${keyword}&apikey=${process.env.ALPHA_KEY}`, { json: true }, (err, res, body) => {
             if (err) { 
                 console.log(err);
                 reject(err); 
             }
-            if (body.count > 0) {
-                if (body.result[0].symbol.includes(".")) {
-                    var symbol = body.result[0].symbol.split(".")[0];
-                    for (let i = 0; i < body.result.length; i++) {
-                        if (body.result[i].symbol == symbol) {
-                            resolve(body.result[i]);
+            if (body.bestMatches) {
+                for (let i = 0; i < body.bestMatches.length; i++) {
+                    if (body.bestMatches[i]['4. region'] == 'United States' || 
+                        body.bestMatches[i]['8. currency'] == 'USD') {
+                            console.log(body.bestMatches[i]['1. symbol']);
+                            resolve(body.bestMatches[i]['1. symbol']);
                             break;
-                        }
                     }
-                    resolve(body.result[0]);
-                } else {
-                    resolve(body.result[0]);
                 }
-            } else {
-                resolve(null);
             }
+            resolve(null);
         });
     });
 }
@@ -59,7 +54,7 @@ router.get('/:tweetId', async function(req, res) {
             tweet_mode: 'extended'
         });
         
-        var tweetStr = tweet.full_text
+        var tweetStr = tweet.full_text;
         if (analyzeStr.length >= 5) {
             analyzeStr[4] += tweetStr;
         } else {
@@ -77,12 +72,13 @@ router.get('/:tweetId', async function(req, res) {
 
         tweetId = tweet.in_reply_to_status_id_str
     } while (tweetId != null)
+    
 
     const entityResults = await textAnalyticsClient.recognizeEntities(analyzeStr);
     entityResults.forEach(document => {
         document.entities.forEach(entity => {
             console.log(entity.category, entity.text);
-            if (entity.category == "Organization" || entity.category == "Product") {
+            if (entity.category == "Organization" || entity.category == "Product" || entity.category == "Person") {
                 companies.push(entity.text);
             }
         });
@@ -90,7 +86,6 @@ router.get('/:tweetId', async function(req, res) {
     
     const uniqueCompanies = new Set(companies);
     const companyArr = [...uniqueCompanies];
-    console.log(companyArr);
 
     let symbols = [];
     for (i = 0; i < companyArr.length; i++) {
@@ -105,9 +100,6 @@ router.get('/:tweetId', async function(req, res) {
         symbols : symbols
     }
 
-
-
-    console.log(symbols);
     res.send(result);
 
 });

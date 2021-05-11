@@ -1,0 +1,30 @@
+.tweetRow {
+    width: 100%;
+}
+
+.embed {
+    padding-left: 0%;
+}
+
+.symbolButtonDiv {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.symbolButton {
+    top: 50%;
+    margin: auto;
+    width: 130px;
+}
+
+.autoGenratedButton {
+    width: 130px;
+}
+
+.automaticSearch {
+    width: 270px;
+}
+
+.symbolSearch {
+    width: 130px;
+}

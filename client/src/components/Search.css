@@ -6,6 +6,7 @@
     color: black;
 }
 
-.searchType {
-
+#searchBox {
+    padding-left: 0%;
+    width: 267px;
 }
