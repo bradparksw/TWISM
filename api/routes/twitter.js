@@ -30,7 +30,6 @@ router.get('/user/:username', async function(req, res) {
             res.send(null);
         } else {
             var searchRes = Object.assign({}, ...tweets.map((tweet) => ({[tweet.id_str]: tweet.created_at})));
-            console.log(tweets);
             res.send(searchRes);
         }
     });
@@ -69,10 +68,8 @@ router.get('/keyword/:query', async function(req, res) {
     twitterClient.get('search/tweets', {
         q: req.params.query
     }, function(error, tweets) {
-        console.log(tweets);
         if(error) throw error;
         var searchRes = Object.assign({}, ...tweets.statuses.map((tweet) => ({[tweet.id_str]: tweet.created_at})));
-        console.log(tweets);
         res.send(searchRes);
     });
 

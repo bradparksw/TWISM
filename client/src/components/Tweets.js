@@ -78,6 +78,7 @@ class Tweets extends Component {
       const options = {
         zoomEnabled: true,
         animationEnabled: true,
+        exportEnabled: true,
         title: {
           text: "Tweet's Influence on " + this.props.chart.symbol
         },
@@ -212,7 +213,7 @@ class Tweets extends Component {
               </Form.Row>
             </Form>
           </Col>
-          <Col lg="auto">
+          <Col className="chart" lg="auto">
             {(tweetId in this.state.chart) ? (
               <CanvasJSChart options = {this.state.chart[tweetId]} />
             ) : null}
